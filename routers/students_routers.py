@@ -4,8 +4,11 @@ from models.students_model import Student
 router = APIRouter()
 
 students = [
-    Student(id="104", name="a", course="IT"),
-    Student(id="105", name="2", course="SW"),
+    Student(id="101", name="a", course="IT"),
+    Student(id="102", name="b", course="SW dev"),
+    Student(id="103", name="c", course="SW dev"),
+    Student(id="104", name="d", course="webd"),
+    Student(id="105", name="e", course="webd"),
 ]
 
 
@@ -16,8 +19,12 @@ def create_student(student: Student):
 
 
 @router.get("/students")
-def get_students():
-    return students
+def get_students(course: str = "none"):
+    if course == "none":
+        return students
+    else:
+        sts = [s for s in students if s.course == course]
+        return sts
 
 
 @router.put("/student/{student_id}")
