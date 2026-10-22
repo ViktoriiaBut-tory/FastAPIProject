@@ -16,3 +16,40 @@ def create_Item(item: ItemCreate, db: session = Depends(get_db)):
     db.commit()
     db.refresh(new_item)  # it will update this new item with id created by db
     return new_item
+
+
+@router.get("/items", response_model=list[ItemResponse])
+def get_all_items(db: session = Depends(get_db)):
+    items = db.query(Item).all()
+    return items
+
+
+@router.get("/items/{item_id}", response_model=ItemResponse)
+def ger_item(item_id: int, db: session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not fount, try again")
+    return item
+
+
+@router.put("/item/{item_id}", response_model=ItemResponse)
+def update_item(item_id: int, item_data: ItemCreate, db: session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not fount, try again")
+    item.name = item_data.name
+    item.price = item_data.price
+    item.in_stock = item_data.in_stock
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+@router.delete("/item/{item_id}")
+def delete_item(item_id: int, db: session = Depends(get_db)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not fount, try again")
+    db.delete(item)
+    db.commit()
+    return {"message": "Item deleted successfully", "id": item_id}
